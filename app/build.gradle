@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
@@ -45,4 +46,8 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
 
     testImplementation 'junit:junit:4.13.2'
+
+    // Firebase
+    implementation 'com.google.firebase:firebase-bom:28.4.2'
+    implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
 }
