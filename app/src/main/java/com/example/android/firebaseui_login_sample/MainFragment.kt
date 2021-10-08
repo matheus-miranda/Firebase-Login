@@ -46,7 +46,7 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false)
 
         // TODO Remove the two lines below once observeAuthenticationState is implemented.
@@ -61,15 +61,30 @@ class MainFragment : Fragment() {
         observeAuthenticationState()
 
         binding.authButton.setOnClickListener {
-            // TODO call launchSignInFlow when authButton is clicked
+            launchSignInFlow()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // TODO Listen to the result of the sign in process by filter for when
-        //  SIGN_IN_REQUEST_CODE is passed back. Start by having log statements to know
-        //  whether the user has signed in successfully
+        // Listen to the result of the sign in process by filter for when
+        // SIGN_IN_REQUEST_CODE is passed back. Start by having log statements to know
+        // whether the user has signed in successfully
+        if (requestCode == SIGN_IN_RESULT_CODE) {
+            val response = IdpResponse.fromResultIntent(data)
+            if (resultCode == Activity.RESULT_OK) {
+                // User successfully signed in
+                Log.i(
+                    TAG,
+                    "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!"
+                )
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                Log.i(TAG, "Sign in unsuccessful ${response?.error?.errorCode}")
+            }
+        }
     }
 
     /**
@@ -104,7 +119,21 @@ class MainFragment : Fragment() {
     }
 
     private fun launchSignInFlow() {
-        // TODO Complete this function by allowing users to register and sign in with
-        //  either their email address or Google account.
+        // Give users the option to sign in with e-mail or google. More option can be added from the
+        // Firebase console
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+
+        // Create and launch the sign in intent
+        // We listen to the response with the SIGN_IN_RESULT_CODE
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            SIGN_IN_RESULT_CODE
+        )
     }
 }
